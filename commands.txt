@@ -1,0 +1,13 @@
+javac -source 11 -target 11 -classpath $(hadoop classpath) -d . wordcount/*.java
+
+jar -cvfm wordcount.jar -C wordcount
+
+hdfs dfs -mkdir /input
+
+hdfs dfs -put data.txt /input
+
+hdfs dfs -rm -r /output
+
+hadoop jar wordcount.jar Manifest.txt /input /output
+
+hdfs dfs -cat /output/part-00000
