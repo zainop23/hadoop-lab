@@ -1,0 +1,62 @@
+// 1. Simple Numeric RDD
+val nums = sc.parallelize(Seq(1, 2, 2, 3, 4, 5))
+
+// 2. String RDD (for flatMap)
+val lines = sc.parallelize(Seq("hello world", "spark scala"))
+
+// 3. Pair RDD (Key-Value)
+val pairs = sc.parallelize(Seq(("A", 1), ("A", 2), ("B", 3), ("C", 1)))
+
+// 1. map: Apply function to every element
+nums.map(x => x * 2) 
+
+// 2. flatMap: Flatten nested structures (e.g., lines to words)
+lines.flatMap(_.split(" ")) 
+
+// 3. filter: Keep elements where condition is true
+nums.filter(_ % 2 == 0) 
+
+// 4. groupByKey: Group values by key [("A", [1,2]), ("B", [3])...]
+pairs.groupByKey() 
+
+// 5. reduceByKey: Merge values by key (Sum values for "A")
+pairs.reduceByKey(_ + _) 
+
+// 6. mapValues: Apply function only to values, keep keys
+pairs.mapValues(v => v * 10) 
+
+// 7. sample: Random sample (no replacement, 50%)
+nums.sample(false, 0.5) 
+
+// 8. union: Combine two RDDs
+nums.union(sc.parallelize(Seq(6, 7))) 
+
+// 9. distinct: Remove duplicates
+nums.distinct() 
+
+// 10. sortByKey: Sort by Key (A, B, C...)
+pairs.sortByKey()
+
+// 1. reduce: Aggregate all elements (Sum all numbers)
+nums.reduce(_ + _) 
+
+// 2. collect: Return all elements to driver as Array
+nums.collect() 
+
+// 3. count: Return number of elements
+nums.count() 
+
+// 4. first: Return only the first element
+nums.first() 
+
+// 5. take: Return the first N elements
+nums.take(3) 
+
+// 6. saveAsTextFile: Write to disk
+nums.saveAsTextFile("output_dir") 
+
+// 7. countByKey: Count occurrences of each key (Map("A" -> 2, "B" -> 1...))
+pairs.countByKey() 
+
+// 8. foreach: Run function on every element (usually for side effects like print)
+nums.foreach(println)
