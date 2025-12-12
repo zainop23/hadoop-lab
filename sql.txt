@@ -1,0 +1,41 @@
+# Create and use database
+spark.sql("CREATE DATABASE IF NOT EXISTS employee_db")
+spark.sql("USE employee_db")
+
+# Create table
+spark.sql("""
+CREATE TABLE IF NOT EXISTS employees (
+  emp_id INT,
+  name STRING,
+  department STRING,
+  salary DOUBLE
+) USING hive
+""")
+
+# INSERT (Create)
+spark.sql("INSERT INTO employees VALUES (101, 'John', 'HR', 45000)")
+spark.sql("INSERT INTO employees VALUES (102, 'Sarah', 'IT', 65000)")
+spark.sql("INSERT INTO employees VALUES (103, 'Michael', 'Finance', 55000)")
+
+# READ
+spark.sql("SELECT * FROM employees").show()
+
+# UPDATE (overwrite table with modified record)
+spark.sql("""
+INSERT OVERWRITE TABLE employees
+SELECT emp_id, name, department,
+       CASE WHEN emp_id = 102 THEN 70000 ELSE salary END AS salary
+FROM employees
+""")
+
+# DELETE (overwrite table without the record)
+spark.sql("""
+INSERT OVERWRITE TABLE employees
+SELECT * FROM employees WHERE emp_id != 103
+""")
+
+# Final table
+spark.sql("SELECT * FROM employees").show()
+
+# Drop everything
+spark.sql("DROP DATABASE employee_db CASCADE")
