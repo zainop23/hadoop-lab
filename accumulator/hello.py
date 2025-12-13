@@ -11,7 +11,6 @@ numbers.foreach(lambda x: evenCount.add(1) if x%2==0 else None)
 print(f"Even count  {evenCount.value}")
 
 # broadcast 
-
 lookup = {
     1 : "one",
     2 : "two",
