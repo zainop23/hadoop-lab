@@ -1,50 +1,89 @@
-// --------------------------------------------
-// CREATE A PAIR RDD (Key-Value RDD)
-// --------------------------------------------
-val pairs = sc.parallelize(Seq(
-  ("A", 1), ("A", 2), ("B", 3), ("C", 1), ("B", 4)
-))
+// ========== PAIR RDD CHEAT SHEET ==========
 
-
-// ============================================
-// TRANSFORMATIONS on Pair RDDs
-// ============================================
-
-// mapValues → apply function to each value
-val t_mapValues = pairs.mapValues(v => v * 10)
-
-// reduceByKey → sum values for each key
-val t_reduceByKey = pairs.reduceByKey(_ + _)
-
-// groupByKey → group values by key
-val t_groupByKey = pairs.groupByKey()
-
-// sortByKey → sort by key (A, B, C...)
-val t_sortByKey = pairs.sortByKey()
-
-// filter → keep pairs where value > 2
-val t_filter = pairs.filter{ case (k, v) => v > 2 }
-
-// join → join with another Pair RDD
+// CREATE PAIR RDD
+val pairs = sc.parallelize(Seq(("A", 1), ("A", 2), ("B", 3), ("C", 1), ("B", 4)))
 val other = sc.parallelize(Seq(("A", 100), ("B", 200)))
-val t_join = pairs.join(other)
-
-// cogroup → group values from both RDDs
-val t_cogroup = pairs.cogroup(other)
 
 
-// ============================================
-// ACTIONS on Pair RDDs
-// ============================================
+// ========== TRANSFORMATIONS (Lazy) ==========
 
-// collect → return all key-value pairs
-val a_collect = pairs.collect()
+// keys - get all keys
+pairs.keys.collect()                    // Array(A, A, B, C, B)
 
-// countByKey → count occurrences of each key
-val a_countByKey = pairs.countByKey()
+// values - get all values
+pairs.values.collect()                  // Array(1, 2, 3, 1, 4)
 
-// lookup → return all values for a specific key
-val a_lookupA = pairs.lookup("A")
+// mapValues - transform values only
+pairs.mapValues(_ * 10).collect()       // Array((A,10), (A,20), (B,30), (C,10), (B,40))
 
-// reduce → aggregate entire RDD
-val a_reduce = pairs.reduce((x, y) => ("sum", x._2 + y._2))
+// flatMapValues - expand values
+pairs.flatMapValues(v => 1 to v).collect()  // expands each value
+
+// reduceByKey - combine values by key
+pairs.reduceByKey(_ + _).collect()      // Array((A,3), (B,7), (C,1))
+
+// groupByKey - group values by key
+pairs.groupByKey().collect()            // Array((A,[1,2]), (B,[3,4]), (C,[1]))
+
+// sortByKey - sort by key
+pairs.sortByKey().collect()             // sorted A, B, C order
+pairs.sortByKey(false).collect()        // descending order
+
+// filter - filter pairs
+pairs.filter(_._2 > 2).collect()        // Array((B,3), (B,4))
+pairs.filter(_._1 == "A").collect()     // Array((A,1), (A,2))
+
+// distinct - remove duplicates
+pairs.distinct().collect()
+
+// join - inner join
+pairs.join(other).collect()             // Array((A,(1,100)), (A,(2,100)), (B,(3,200)), (B,(4,200)))
+
+// leftOuterJoin - left join
+pairs.leftOuterJoin(other).collect()
+
+// rightOuterJoin - right join
+pairs.rightOuterJoin(other).collect()
+
+// fullOuterJoin - full outer join
+pairs.fullOuterJoin(other).collect()
+
+// cogroup - group from both RDDs
+pairs.cogroup(other).collect()
+
+// subtractByKey - remove keys present in other
+pairs.subtractByKey(other).collect()    // Array((C,1))
+
+
+// ========== ACTIONS (Trigger Execution) ==========
+
+// collect - get all pairs
+pairs.collect()
+
+// count - count pairs
+pairs.count()                           // 5
+
+// first - get first pair
+pairs.first()                           // (A, 1)
+
+// take - get n pairs
+pairs.take(3)                           // Array((A,1), (A,2), (B,3))
+
+// countByKey - count per key
+pairs.countByKey()                      // Map(A -> 2, B -> 2, C -> 1)
+
+// countByValue - count per pair
+pairs.countByValue()
+
+// lookup - get values for key
+pairs.lookup("A")                       // Seq(1, 2)
+pairs.lookup("B")                       // Seq(3, 4)
+
+// collectAsMap - collect as Map
+pairs.collectAsMap()                    // Map(A -> 2, B -> 4, C -> 1) (last value wins)
+
+// foreach - iterate pairs
+pairs.foreach(println)
+
+// saveAsTextFile - save to file
+pairs.saveAsTextFile("file:///path/output")
