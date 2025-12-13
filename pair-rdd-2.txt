@@ -1,0 +1,50 @@
+// --------------------------------------------
+// CREATE A PAIR RDD (Key-Value RDD)
+// --------------------------------------------
+val pairs = sc.parallelize(Seq(
+  ("A", 1), ("A", 2), ("B", 3), ("C", 1), ("B", 4)
+))
+
+
+// ============================================
+// TRANSFORMATIONS on Pair RDDs
+// ============================================
+
+// mapValues → apply function to each value
+val t_mapValues = pairs.mapValues(v => v * 10)
+
+// reduceByKey → sum values for each key
+val t_reduceByKey = pairs.reduceByKey(_ + _)
+
+// groupByKey → group values by key
+val t_groupByKey = pairs.groupByKey()
+
+// sortByKey → sort by key (A, B, C...)
+val t_sortByKey = pairs.sortByKey()
+
+// filter → keep pairs where value > 2
+val t_filter = pairs.filter{ case (k, v) => v > 2 }
+
+// join → join with another Pair RDD
+val other = sc.parallelize(Seq(("A", 100), ("B", 200)))
+val t_join = pairs.join(other)
+
+// cogroup → group values from both RDDs
+val t_cogroup = pairs.cogroup(other)
+
+
+// ============================================
+// ACTIONS on Pair RDDs
+// ============================================
+
+// collect → return all key-value pairs
+val a_collect = pairs.collect()
+
+// countByKey → count occurrences of each key
+val a_countByKey = pairs.countByKey()
+
+// lookup → return all values for a specific key
+val a_lookupA = pairs.lookup("A")
+
+// reduce → aggregate entire RDD
+val a_reduce = pairs.reduce((x, y) => ("sum", x._2 + y._2))
